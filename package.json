@@ -1,0 +1,11 @@
+{
+  "name": "adventofcode23",
+  "version": "1.0.0",
+  "description": "Advent of code 2023 project",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC"
+}
