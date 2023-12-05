@@ -24,45 +24,42 @@ let sum= 0;
   }
 })();
 
-
-
 const calculateData = (dataLine) => {
-  let isGamePossible = true;
-
-  const id = dataLine.match(/^\d+|\d+\b|\d+(?=\w)/g)[0]; //gets all integers in the string and gets the first element in an array
-  const parsedId = parseInt(id);
   const games = dataLine.split(":")[1].split(';');
+  let redsHighestAmount =0;
+  let greensHighestAmount=0;
+  let bluesHighestAmount=0;
+
 
   games.forEach(game => {
     //check greens
     const greens = game.match(/(\d+)(?=\s*green)/) //gets all matching integers before a word 'green'
-    if(greens){
-      if(greens[0] > 13){
-        isGamePossible = false;
-        return
+    if(Array.isArray(greens)){
+      const parsedGreens = parseInt(greens[0])
+      if(parsedGreens > greensHighestAmount){
+        greensHighestAmount = parsedGreens;
       }
     }
     //check red
     const reds = game.match(/(\d+)(?=\s*red)/) //gets all matching integers before a word 'red'
-    if(reds){
-      if(reds[0] > 12){
-        isGamePossible = false;
-        return
+    if(Array.isArray(reds)){
+      const parsedReds = parseInt(reds[0])
+      if(parsedReds > redsHighestAmount){
+        redsHighestAmount = parsedReds;
       }
     }
     //check blue
     const blues = game.match(/(\d+)(?=\s*blue)/) //gets all matching integers before a word 'blue'
-    if(blues){
-      if(blues[0] > 14){
-        isGamePossible = false;
-        return
+    if(Array.isArray(blues)){
+      const parsedBlues = parseInt(blues[0])
+      if(parsedBlues > bluesHighestAmount){
+        bluesHighestAmount = parsedBlues;
       }
     }
 
   })
 
-  if(isGamePossible){
-    sum += parsedId
-  }
+  const value = redsHighestAmount * bluesHighestAmount * greensHighestAmount
+  sum += value;
   
 }
