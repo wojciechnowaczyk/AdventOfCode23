@@ -28,6 +28,8 @@ let currentIterationName = "";
 
     await events.once(rl, 'close');
 
+    console.log(humidity_to_location_map)
+
     console.log('Reading file line by line with readline done.');
   } catch (err) {
     console.error(err);
@@ -40,12 +42,40 @@ const parseData = (dataLine) => {
   if(!dataLine.match(/^[0-9\s]+$/)){
     //get the string before :
     const title= dataLine.split(':')[0]
-    console.log(title)
     if(title === 'seeds'){
       let seedsFromData = dataLine.split(':')[1];
       seeds = seedsFromData.split(' ').filter(Boolean)
+    }else{
+      let parsedTitle = title.replace(/[ -]/g, '_');
+      currentIterationName = parsedTitle;
     }
-    console.log(seeds);
+  }else{
+    const data = dataLine.split(' ');
+    switch(currentIterationName){
+      case 'seed_to_soil_map' : 
+        seed_to_soil_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      case 'soil_to_fertilizer_map' :
+        soil_to_fetilizer_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      case 'fertilizer_to_water_map' :
+        fertilizer_to_water_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      case 'water_to_light_map' :
+        water_to_light_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      case 'light_to_temperature_map' :
+        light_to_temperature_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      case 'temperature_to_humidity_map' :
+        temperature_to_humidity_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      case 'humidity_to_location_map' :
+        humidity_to_location_map.push({destination : data[0], source: data[1], length: data[2]})
+        break;
+      
+      
+    }
   }
   //set string line as current iteration
   }
