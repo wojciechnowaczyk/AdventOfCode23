@@ -46,9 +46,7 @@ const calculateData = () => {
       nextLine = input[index + 1]
     }
     line.forEach((lineEl, lineElIndex) => {
-      // if element is dot, do nothing
       if(lineEl === "*"){
-        console.log('star')
         getNumbers(lineElIndex)
       }
     })
@@ -57,17 +55,42 @@ const calculateData = () => {
 
 const getNumbers = (elIndex) => {
   let numbersArr = [];
+  let prevLineNumbers = [];
+  let nextLineNumbers = [];
+  let nextNumber;
+  let prevNumber;
+  let amount = 0;
   //check previous index
-  numbersArr.push(getNumber("prev", currentLine, elIndex));
+  nextNumber = getNumber("prev", currentLine, elIndex)
+  if(nextNumber != null) numbersArr.push(nextNumber);
   //check next index
-  numbersArr.push(getNumber("next", currentLine, elIndex));
+  prevNumber = getNumber("next", currentLine, elIndex)
+  if(prevNumber != null) numbersArr.push(prevNumber);
   //check prev line
-  const prevLineNumbers = getNumbersFromLine(prevLine, elIndex);
+  if(isNaN(prevLine[elIndex])){
+    prevLineNumbers = getNumbersFromLine(prevLine, elIndex);
+  }else{
+    const numb = getSolidNumber(elIndex, prevLine)
+    if(numb != null){numbersArr.push(numb)}
+  }
   //check next line
-  const nextLineNumbers = getNumbersFromLine(nextLine, elIndex);
-  // console.log(numbersArr)
+  if(isNaN(nextLine[elIndex])){
+    nextLineNumbers = getNumbersFromLine(nextLine, elIndex);
+  }else{
+    const numb = getSolidNumber(elIndex, nextLine)
+    if(numb != null){numbersArr.push(numb)}
+  }
   const finalArr = [...prevLineNumbers, ...nextLineNumbers, ...numbersArr];
-  console.log(finalArr)
+  if(finalArr.length >= 2){
+    finalArr.forEach(numb => {
+      if(amount === 0){
+        amount = numb
+      }else{
+        amount *= numb
+      }
+    })
+  }
+  sum += amount
 }
 
 const getNumbersFromLine = (line, elIndex) => {
@@ -133,6 +156,40 @@ const getNumber = (mode, line, elIndex) => {
       return parseInt(finalNumber.split("").reverse().join(""));
     }
   }
+}
+
+const getSolidNumber = (elIndex, line) => {
+  let n = elIndex;
+  let m = elIndex;
+  let finalNumber = '';
+
+  if(!isNaN(parseInt(line[elIndex]))){
+    let shouldCheckNextEl = true;
+    while(shouldCheckNextEl){
+        if(!isNaN(parseInt(line[n])) && parseInt(line[n]) !== undefined){
+          finalNumber += line[n]
+            n--
+
+        }else{
+          shouldCheckNextEl = false;
+        }
+      }
+      finalNumber = finalNumber.split("").reverse().join("")
+  }
+  if(!isNaN(parseInt(line[elIndex]))){
+    let shouldCheckNextEl = true;
+    while(shouldCheckNextEl){
+        if(!isNaN(parseInt(line[m+1])) && parseInt(line[m+1]) !== undefined){
+          finalNumber += line[m+1]
+            m++
+
+        }else{
+          shouldCheckNextEl = false;
+        }
+      }
+  }
+
+  return parseInt(finalNumber);
 }
 
 
