@@ -28,7 +28,10 @@ let currentIterationName = "";
 
     await events.once(rl, 'close');
 
-    console.log(humidity_to_location_map)
+    iterateSeeds();
+    const lowestNumber = Math.min(...locations)
+    console.log('lowest number: ')
+    console.log(lowestNumber)
 
     console.log('Reading file line by line with readline done.');
   } catch (err) {
@@ -45,11 +48,14 @@ const parseData = (dataLine) => {
     if(title === 'seeds'){
       let seedsFromData = dataLine.split(':')[1];
       seeds = seedsFromData.split(' ').filter(Boolean)
+      // seeds.push(2637529854);
     }else{
+      //set string line as current iteration
       let parsedTitle = title.replace(/[ -]/g, '_');
       currentIterationName = parsedTitle;
     }
   }else{
+    //parse data line by line
     const data = dataLine.split(' ');
     switch(currentIterationName){
       case 'seed_to_soil_map' : 
@@ -71,11 +77,45 @@ const parseData = (dataLine) => {
         temperature_to_humidity_map.push({destination : data[0], source: data[1], length: data[2]})
         break;
       case 'humidity_to_location_map' :
-        humidity_to_location_map.push({destination : data[0], source: data[1], length: data[2]})
+        humidity_to_location_map.push({destination : data[0], source: parseInt(data[1]), length: data[2]})
         break;
       
       
     }
   }
-  //set string line as current iteration
+  }
+
+  const iterateSeeds = () => {
+    seeds.forEach(seed => {
+      //check the seed to soil map
+      const parsedSeed = parseInt(seed)
+      const seedToSoilNumber = getTheNumberOfNextReference(parsedSeed, seed_to_soil_map)
+      const soilToFertilizerNumber = getTheNumberOfNextReference(seedToSoilNumber, soil_to_fetilizer_map)
+      const fertilizerToWaterNumber = getTheNumberOfNextReference(soilToFertilizerNumber, fertilizer_to_water_map)
+      const waterToLightNumber = getTheNumberOfNextReference(fertilizerToWaterNumber, water_to_light_map)
+      const lightToTemperatureNumber = getTheNumberOfNextReference(waterToLightNumber, light_to_temperature_map)
+      const temperatureToHumidityNumber = getTheNumberOfNextReference(lightToTemperatureNumber, temperature_to_humidity_map)
+      const humidityToLocationNumber = getTheNumberOfNextReference(temperatureToHumidityNumber, humidity_to_location_map)
+
+      locations.push(humidityToLocationNumber)
+    })
+  }
+
+  const getTheNumberOfNextReference = (numb, map) => {
+    let nextNumber = null;
+    map.forEach(alamanach => {
+      const parsedSource = parseInt(alamanach.source)
+      const parsedDestination = parseInt(alamanach.destination);
+      const parsedLength = parseInt(alamanach.length)
+      //check if a number is in range
+      if(parsedSource <= numb && numb <= parsedSource + parsedLength){
+        const difference = numb - parsedSource
+        nextNumber = parsedDestination + difference
+      }
+    })
+    if(!nextNumber){
+      //if number is not in range of source and length return the same number as inout number
+      nextNumber = numb
+    }
+    return nextNumber
   }
