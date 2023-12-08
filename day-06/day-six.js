@@ -17,7 +17,7 @@ let parsedDataArr = [];
     });
 
     await events.once(rl, 'close');
-
+    calculateData()
     console.log('Reading file line by line with readline done.');
     console.log("sum: " + sum)
   } catch (err) {
@@ -42,7 +42,23 @@ const parseData = (dataLine) => {
     })
     parsedDataArr = newArr;
   }
-
-
 }
 
+const calculateData = () => {
+  parsedDataArr.forEach(race => {
+    let ways = 0;
+    for(let i = 1; i <race.time; i++){
+      const raceDistance = (race.time - i)*i
+      if(raceDistance > race.distance){
+        ways += 1;
+      }
+    }
+    if(sum === 0){
+      sum = ways
+    }else{
+      if(ways !== 0){
+        sum = sum * ways
+      }
+    }
+  })
+}
