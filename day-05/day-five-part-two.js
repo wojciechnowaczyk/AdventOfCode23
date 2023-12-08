@@ -2,7 +2,7 @@ const events = require('events');
 const fs = require('fs');
 const readline = require('readline');
 
-let locations = [];
+let lowestNumber = null;
 
 let seeds = [];
 let seed_to_soil_map =[];
@@ -14,6 +14,9 @@ let temperature_to_humidity_map =[];
 let humidity_to_location_map = [];
 
 let currentIterationName = "";
+
+let allIterations = 0;
+let currentIteration = 0;
 
 (async function processLineByLine() {
   try {
@@ -27,9 +30,8 @@ let currentIterationName = "";
     });
 
     await events.once(rl, 'close');
-
+    calculateIterations();
     iterateSeeds();
-    const lowestNumber = Math.min(...locations)
     console.log('lowest number: ')
     console.log(lowestNumber)
 
@@ -47,8 +49,16 @@ const parseData = (dataLine) => {
     const title= dataLine.split(':')[0]
     if(title === 'seeds'){
       let seedsFromData = dataLine.split(':')[1];
-      seeds = seedsFromData.split(' ').filter(Boolean)
-      // seeds.push(2637529854);
+      let seedsArr = seedsFromData.split(' ').filter(Boolean)
+      let startRange;
+      //iterate throuhg the seeds line and parse data into start range seeds and length
+      seedsArr.forEach((seed, index) => {
+        if(index%2 === 0){
+          startRange = seed
+        }else{
+          seeds.push({startRange: startRange, length: seed})
+        }
+      })
     }else{
       //set string line as current iteration
       let parsedTitle = title.replace(/[ -]/g, '_');
@@ -85,19 +95,33 @@ const parseData = (dataLine) => {
   }
   }
 
-  const iterateSeeds = () => {
+  const calculateIterations = () => {
     seeds.forEach(seed => {
-      //check the seed to soil map
-      const parsedSeed = parseInt(seed)
-      const seedToSoilNumber = getTheNumberOfNextReference(parsedSeed, seed_to_soil_map)
-      const soilToFertilizerNumber = getTheNumberOfNextReference(seedToSoilNumber, soil_to_fetilizer_map)
-      const fertilizerToWaterNumber = getTheNumberOfNextReference(soilToFertilizerNumber, fertilizer_to_water_map)
-      const waterToLightNumber = getTheNumberOfNextReference(fertilizerToWaterNumber, water_to_light_map)
-      const lightToTemperatureNumber = getTheNumberOfNextReference(waterToLightNumber, light_to_temperature_map)
-      const temperatureToHumidityNumber = getTheNumberOfNextReference(lightToTemperatureNumber, temperature_to_humidity_map)
-      const humidityToLocationNumber = getTheNumberOfNextReference(temperatureToHumidityNumber, humidity_to_location_map)
+      allIterations += parseInt(seed.length)
+    })
+  }
 
-      locations.push(humidityToLocationNumber)
+  const iterateSeeds = () => {
+    seeds.forEach(seedAlamanac => {
+      const startRange = parseInt(seedAlamanac.startRange);
+      const length = parseInt(seedAlamanac.length);
+      for(let i = startRange; i< startRange+length; i++){
+        currentIteration += 1;
+        console.log(currentIteration+'/'+allIterations)
+        const seedToSoilNumber = getTheNumberOfNextReference(i, seed_to_soil_map)
+        const soilToFertilizerNumber = getTheNumberOfNextReference(seedToSoilNumber, soil_to_fetilizer_map)
+        const fertilizerToWaterNumber = getTheNumberOfNextReference(soilToFertilizerNumber, fertilizer_to_water_map)
+        const waterToLightNumber = getTheNumberOfNextReference(fertilizerToWaterNumber, water_to_light_map)
+        const lightToTemperatureNumber = getTheNumberOfNextReference(waterToLightNumber, light_to_temperature_map)
+        const temperatureToHumidityNumber = getTheNumberOfNextReference(lightToTemperatureNumber, temperature_to_humidity_map)
+        const humidityToLocationNumber = getTheNumberOfNextReference(temperatureToHumidityNumber, humidity_to_location_map)
+
+        if(lowestNumber === null){
+          lowestNumber = humidityToLocationNumber
+        }else if(humidityToLocationNumber < lowestNumber){
+          lowestNumber = humidityToLocationNumber;
+        }
+      }
     })
   }
 
