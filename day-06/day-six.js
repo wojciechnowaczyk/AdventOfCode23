@@ -3,10 +3,7 @@ const fs = require('fs');
 const readline = require('readline');
 
 let sum= 0;
-const input = [];
-let prevLine = [];
-let currentLine = [];
-let nextLine =[];
+let parsedDataArr = [];
 
 (async function processLineByLine() {
   try {
@@ -16,12 +13,10 @@ let nextLine =[];
     });
 
     rl.on('line', (line) => {
-      calculateData(line);      
+      parseData(line);      
     });
 
     await events.once(rl, 'close');
-
-
 
     console.log('Reading file line by line with readline done.');
     console.log("sum: " + sum)
@@ -30,7 +25,24 @@ let nextLine =[];
   }
 })();
 
-const calculateData = (dataLine) => {
+const parseData = (dataLine) => {
+  const parsedLine = dataLine.split(":")[1];
+  let newArr = [];
+  if(dataLine.includes("Time")){
+    const timeArr = parsedLine.split(" ");
+    let timeArrFiltered = timeArr.filter(Boolean)
+    timeArrFiltered.forEach(time => {
+      parsedDataArr.push({time: time})
+    })
+  }else if(dataLine.includes('Distance')){
+    const distanceArr = parsedLine.split(" ");
+    let distanceArrFiltered = distanceArr.filter(Boolean);
+    parsedDataArr.forEach((data, index) => {
+      newArr.push({time: parseInt(data.time), distance: parseInt(distanceArrFiltered[index])})
+    })
+    parsedDataArr = newArr;
+  }
+
 
 }
 
