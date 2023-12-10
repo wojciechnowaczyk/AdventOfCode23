@@ -3,7 +3,7 @@ const fs = require('fs');
 const readline = require('readline');
 
 let sum= 0;
-let instruction = "" 
+let instructions = "" 
 let steps = [];
 
 
@@ -20,7 +20,7 @@ let steps = [];
 
 
     await events.once(rl, 'close');
-    console.log(steps)
+    calculateData();
 
     console.log('Reading file line by line with readline done.');
     console.log("sum: " + sum)
@@ -30,10 +30,10 @@ let steps = [];
 })();
 
 const parseData = (dataLine) => {
-  if(dataLine.includes("L") || dataLine.includes("R")){
-    instruction += dataLine
-  }else{
-    let input = dataLine.split("=")[0];
+  if(!dataLine.includes("=")){
+    instructions += dataLine
+  }else if(dataLine != ''){
+    let input = dataLine.split(" =")[0];
     let parsedElements = dataLine.split("=")[1]
     if(parsedElements){
       parsedElements = parsedElements.replace(/[(),]/g, '').split(" ").slice(1)
@@ -41,6 +41,34 @@ const parseData = (dataLine) => {
     steps.push({node: input, elements: parsedElements})
  
   }
+}
 
+const calculateData = () => {
+  const parsedInstructions = instructions.split("");
+  let currentIndex = steps.findIndex(element => element.node === "AAA");
+  let didFindTheNumber = false;
+  const iterateInstructions = () => {
+    parsedInstructions.forEach((instruction) => {
+      //check if the current iteration element is equals to 'ZZZ', if yes, it breaks the loop;
+      if(steps[currentIndex].node !== "ZZZ"){
+        if(instruction === "L"){
+          // get the element of the next iteration
+          let el = steps[currentIndex].elements[0]
+          //get the index of the next iteration element
+          currentIndex = steps.findIndex(element => element.node === el)
+        }
+        if(instruction === "R"){
+         let el = steps[currentIndex].elements[1]
+         currentIndex = steps.findIndex(element => element.node === el)
+        }
+        sum += 1;
+      }else{
+        didFindTheNumber = true;
+      }
+    })
+  }
+  while (!didFindTheNumber){
+    iterateInstructions();
+  }
 }
 
