@@ -7,7 +7,7 @@ let sum= 0;
 (async function processLineByLine() {
   try {
     const rl = readline.createInterface({
-      input: fs.createReadStream('./inputs/input-01.txt'),
+      input: fs.createReadStream('./input-01.txt'),
       crlfDelay: Infinity
     });
 
@@ -28,8 +28,8 @@ let sum= 0;
 const calculateData = (dataLine) => {
   const numbersInLine = dataLine.replace(/[^0-9]/g,"");
   if(numbersInLine.length > 1){
-    const firstChar = numbersInLine.charAt(0)
-    const lastChar = numbersInLine.slice(-1);
+    const firstChar = numbersInLine.charAt(0) //gets first chatacter in string
+    const lastChar = numbersInLine.slice(-1); // gets last character in string
     finalNumber = parseInt(firstChar + lastChar);
     sum+=finalNumber
 
